@@ -18,11 +18,11 @@
         .navbar {
             margin-bottom: 20px;
         }
-        .floating-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+        .modal-dialog {
+            max-width: 80%;
+        }
+        .modal-body img {
+            width: 100%;
         }
     </style>
 </head>
@@ -32,31 +32,72 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="/">Image Gallery</a>
             </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/upload">Upload</a></li>
+            </ul>
         </div>
     </nav>
 
     <div class="container">
-        <div class="row" id="image-container">
-            <!-- 图片将通过 JavaScript 动态加载 -->
-        </div>
+        <div class="row" id="image-container"></div>
     </div>
 
-    <a href="/upload" class="btn btn-primary floating-button">Picture</a>
+    <!-- Modal for image preview -->
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="imageModalLabel">Image Preview</h4>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImage" src="" alt="Image Preview">
+                </div>
+                <div class="modal-footer">
+                    <a id="downloadLink" href="" download class="btn btn-primary">Download</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 引入本地 jQuery 和 Bootstrap 3 JavaScript -->
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-
     <script>
-        $(document).ready(function() {
-            $.getJSON('/files', function(data) {
-                const imageContainer = $('#image-container');
+        let page = 1;
+        const pageSize = 9;
+
+        function loadImages() {
+            $.getJSON('/files', { page: page }, function(data) {
+                const container = $('#image-container');
                 data.files.forEach(function(file) {
-                    const img = $('<img>').attr('src', '/uploads/' + file).addClass('thumbnail');
-                    const col = $('<div>').addClass('col-xs-6 col-sm-4 col-md-3').append(img);
-                    imageContainer.append(col);
+                    const img = $('<img>').attr('src', '/uploads/' + file.name).addClass('thumbnail');
+                    const imgContainer = $('<div>').addClass('col-xs-6 col-md-3').append(img);
+                    container.append(imgContainer);
+
+                    img.on('click', function() {
+                        $('#modalImage').attr('src', '/uploads/' + file.name);
+                        $('#downloadLink').attr('href', '/uploads/' + file.name);
+                        $('#imageModal').modal('show');
+                    });
                 });
+                if (data.files.length < pageSize) {
+                    $(window).off('scroll', onScroll);
+                }
             });
+        }
+
+        function onScroll() {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                page++;
+                loadImages();
+            }
+        }
+
+        $(document).ready(function() {
+            loadImages();
+            $(window).on('scroll', onScroll);
         });
     </script>
 </body>

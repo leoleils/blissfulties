@@ -1,74 +1,101 @@
 package main
 
 import (
-    "net/http"
-    "os"
-    "path/filepath"
+	"net/http"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"time"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
-const (
-    MAX_FILES = 30
-    MAX_SIZE  = 2 * 1024 * 1024 * 1024 // 2GB
-)
+type FileInfo struct {
+	Name    string    `json:"name"`
+	ModTime time.Time `json:"mod_time"`
+}
 
 func main() {
-    router := gin.Default()
-    router.Static("/uploads", "./uploads")
-    router.Static("/static", "./static")
-    router.LoadHTMLGlob("templates/*")
+	r := gin.Default()
+	r.Static("/static", "./static")
+	r.Static("/uploads", "./uploads")
+	r.LoadHTMLGlob("templates/*")
 
-    router.GET("/", func(c *gin.Context) {
-        c.HTML(http.StatusOK, "index.html", nil)
-    })
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
 
-    router.GET("/upload", func(c *gin.Context) {
-        c.HTML(http.StatusOK, "upload.html", nil)
-    })
+	r.GET("/upload", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "upload.html", nil)
+	})
 
-    router.POST("/upload", func(c *gin.Context) {
-        form, err := c.MultipartForm()
-        if err != nil {
-            c.String(http.StatusBadRequest, "Bad request")
-            return
-        }
+	r.POST("/upload", func(c *gin.Context) {
+		form, _ := c.MultipartForm()
+		files := form.File["files"]
 
-        files := form.File["files"]
-        if len(files) > MAX_FILES {
-            c.String(http.StatusBadRequest, "You can upload a maximum of 30 images at a time.")
-            return
-        }
+		if len(files) > 20 {
+			c.String(http.StatusBadRequest, "Too many files. Maximum is 20.")
+			return
+		}
 
-        for _, file := range files {
-            if file.Size > MAX_SIZE {
-                c.String(http.StatusBadRequest, "Each file must be less than 2GB.")
-                return
-            }
+		for _, file := range files {
+			if file.Size > 1<<30 { // 1GB
+				c.String(http.StatusBadRequest, "File too large. Maximum size is 1GB.")
+				return
+			}
+			c.SaveUploadedFile(file, filepath.Join("uploads", file.Filename))
+		}
 
-            if err := c.SaveUploadedFile(file, filepath.Join("uploads", file.Filename)); err != nil {
-                c.String(http.StatusInternalServerError, "Could not save file")
-                return
-            }
-        }
+		c.String(http.StatusOK, "Files uploaded successfully")
+	})
 
-        c.String(http.StatusOK, "Files uploaded successfully")
-    })
+	r.GET("/files", func(c *gin.Context) {
+		files, err := os.ReadDir("uploads")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-    router.GET("/files", func(c *gin.Context) {
-        files, err := os.ReadDir("uploads")
-        if err != nil {
-            c.String(http.StatusInternalServerError, "Could not read directory")
-            return
-        }
+		var fileInfos []FileInfo
+		for _, file := range files {
+			info, err := file.Info()
+			if err != nil {
+				continue
+			}
+			fileInfos = append(fileInfos, FileInfo{
+				Name:    file.Name(),
+				ModTime: info.ModTime(),
+			})
+		}
 
-        var fileNames []string
-        for _, file := range files {
-            fileNames = append(fileNames, file.Name())
-        }
+		// 按修改时间排序
+		sort.Slice(fileInfos, func(i, j int) bool {
+			return fileInfos[i].ModTime.After(fileInfos[j].ModTime)
+		})
 
-        c.JSON(http.StatusOK, gin.H{"files": fileNames})
-    })
+		// 分页
+		page, _ := c.GetQuery("page")
+		pageSize := 9
+		start := 0
+		if page != "" {
+			start = (atoi(page) - 1) * pageSize
+		}
+		if start > len(fileInfos) {
+			start = len(fileInfos)
+		}
+		end := start + pageSize
+		if end > len(fileInfos) {
+			end = len(fileInfos)
+		}
 
-    router.Run(":8080")
+		c.JSON(http.StatusOK, gin.H{"files": fileInfos[start:end]})
+	})
+
+	r.Run(":8080")
+}
+
+func atoi(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
 }

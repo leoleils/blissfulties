@@ -18,6 +18,18 @@
         .navbar {
             margin-bottom: 20px;
         }
+        .preview {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .preview img {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 5px;
+        }
+        .progress {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -31,70 +43,85 @@
 
     <div class="container">
         <h2>Upload Images</h2>
-        <form id="upload-form" enctype="multipart/form-data">
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="files">Select images to upload (max 30, max size 2GB each):</label>
+                <label for="files">Select images:</label>
                 <input type="file" id="files" name="files" multiple class="form-control">
             </div>
-            <div id="preview" class="row"></div>
+            <div class="preview" id="preview"></div>
             <button type="submit" class="btn btn-primary">Upload</button>
         </form>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                0%
+            </div>
+        </div>
     </div>
 
     <!-- 引入本地 jQuery 和 Bootstrap 3 JavaScript -->
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-
     <script>
         $(document).ready(function() {
-            const MAX_FILES = 30;
-            const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
-
             $('#files').on('change', function() {
                 const files = this.files;
                 const preview = $('#preview');
                 preview.empty();
 
-                if (files.length > MAX_FILES) {
-                    alert('You can upload a maximum of 30 images.');
-                    this.value = ''; // 清空文件输入
+                if (files.length > 20) {
+                    alert('Too many files. Maximum is 20.');
+                    this.value = '';
                     return;
                 }
 
                 for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.size > MAX_SIZE) {
-                        alert('Each file must be less than 2GB.');
-                        this.value = ''; // 清空文件输入
+                    if (files[i].size > 1 << 30) { // 1GB
+                        alert('File too large. Maximum size is 1GB.');
+                        this.value = '';
                         return;
                     }
 
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const img = $('<img>').attr('src', e.target.result).addClass('thumbnail');
-                        const col = $('<div>').addClass('col-xs-6 col-sm-4 col-md-3').append(img);
-                        preview.append(col);
-                    };
-                    reader.readAsDataURL(file);
+                        const img = $('<img>').attr('src', e.target.result);
+                        preview.append(img);
+                    }
+                    reader.readAsDataURL(files[i]);
                 }
             });
 
             $('#upload-form').on('submit', function(e) {
                 e.preventDefault();
+
                 const formData = new FormData(this);
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/upload', true);
+                const progressBar = $('.progress-bar');
 
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        alert('Files uploaded successfully!');
-                        window.location.href = '/'; // 上传成功后跳转到主页
-                    } else {
-                        alert('File upload failed.');
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    xhr: function() {
+                        const xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener('progress', function(e) {
+                            if (e.lengthComputable) {
+                                const percentComplete = (e.loaded / e.total) * 100;
+                                progressBar.css('width', percentComplete + '%');
+                                progressBar.attr('aria-valuenow', percentComplete);
+                                progressBar.text(Math.round(percentComplete) + '%');
+                            }
+                        }, false);
+                        return xhr;
+                    },
+                    success: function() {
+                        alert('Files uploaded successfully');
+                        window.location.href = '/';
+                    },
+                    error: function() {
+                        alert('An error occurred while uploading the files');
                     }
-                };
-
-                xhr.send(formData);
+                });
             });
         });
     </script>
