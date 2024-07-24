@@ -5,10 +5,10 @@ nohup: ignoring input
  - using env:	export GIN_MODE=release
  - using code:	gin.SetMode(gin.ReleaseMode)
 
-[GIN-debug] GET    /uploads/*filepath        --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
-[GIN-debug] HEAD   /uploads/*filepath        --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] GET    /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] HEAD   /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] GET    /uploads/*filepath        --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] HEAD   /uploads/*filepath        --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] Loaded HTML Templates (3): 
 	- 
 	- index.html
@@ -21,4 +21,8 @@ nohup: ignoring input
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-[GIN-debug] [ERROR] listen tcp :8080: bind: address already in use
+[GIN] 2024/07/24 - 11:33:08 | 200 |     499.368µs |    59.37.125.44 | GET      "/"
+[GIN] 2024/07/24 - 11:33:09 | 200 |     306.923µs |    59.37.125.44 | GET      "/files?page=1"
+[GIN] 2024/07/24 - 11:33:09 | 304 |      84.019µs |    59.37.125.44 | GET      "/uploads/be052a7e02b7ea6f71e9c5412327a4fe.jpeg"
+[GIN] 2024/07/24 - 11:33:17 | 200 |     146.741µs |    59.37.125.44 | GET      "/files?page=2"
+[GIN] 2024/07/24 - 11:34:30 | 200 |       421.3µs |   59.83.208.103 | GET      "/"
