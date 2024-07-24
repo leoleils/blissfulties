@@ -2,201 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="format-detection" content="telephone=no">
-    <title>Image Gallery</title>
-    <!-- 引入本地 Bootstrap 3 CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <!-- 引入 Font Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
     <style>
         body {
             background-color: #800020; /* Burgundy color */
             color: white; /* Optional: Set text color to white for better contrast */
         }
-        .thumbnail {
-            width: 100%;
-            height: auto;
-            margin: 5px;
-            cursor: pointer;
-        }
-        .navbar {
-            margin-bottom: 20px;
-        }
-        .modal-dialog {
-            max-width: 80%;
-        }
-        .modal-body img {
-            width: 100%;
-        }
-        .floating-button {
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            z-index: 1000;
-            background-color: #007bff;
+        .hero-image {
+            position: relative;
+            text-align: center;
             color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.5;
-            transition: opacity 0.3s, transform 0.3s;
         }
-        .floating-button:hover {
-            opacity: 1;
-            transform: scale(1.1);
+        .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'SimHei', '黑体', sans-serif; /* 黑体 */
         }
-        .floating-button:active {
-            transform: scale(0.9);
+        .hero-text h1 {
+            font-size: 3em;
+            font-weight: bold;
         }
-        .toggle-button {
-            position: fixed;
-            top: 105px;
-            right: 20px;
-            z-index: 1000;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.5;
-            transition: opacity 0.3s, transform 0.3s;
+        .hero-text p {
+            font-size: 1.5em;
         }
-        .toggle-button:hover {
-            opacity: 1;
-            transform: scale(1.1);
+        .info-text {
+            text-align: center;
+            font-family: 'SimHei', '黑体', sans-serif; /* 黑体 */
+            margin-top: 20px;
         }
-        .toggle-button:active {
-            transform: scale(0.9);
-        }
-        .image-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .image-item {
-            flex: 1 1 calc(33.333% - 10px); /* Default: 3 columns with 10px gap */
-            box-sizing: border-box;
-            margin: 5px;
-        }
-        @media (max-width: 768px) {
-            .image-item {
-                flex: 1 1 calc(50% - 10px); /* 2 columns with 10px gap on smaller screens */
-            }
-        }
-        @media (max-width: 480px) {
-            .image-item {
-                flex: 1 1 calc(100% - 10px); /* 1 column with 10px gap on very small screens */
-            }
+        .info-text p {
+            font-size: 1.5em;
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="/">Image Gallery</a>
-            </div>
+            <!-- <div class="navbar-header">
+                <a class="navbar-brand" href="/">吾家有喜</a>
+            </div> -->
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="/">吾家有喜</a></li>
+                <li><a href="/gallery">照片墙</a></li>
+            </ul>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="image-container" id="image-container"></div>
-    </div>
-
-    <!-- Floating Upload Button -->
-    <a href="/upload" class="floating-button">
-        <i class="fas fa-camera"></i>
-    </a>
-
-    <!-- Toggle Button -->
-    <button class="toggle-button" id="toggleButton">
-        <i class="fas fa-th"></i>
-    </button>
-
-    <!-- Modal for image preview -->
-    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="imageModalLabel">Image Preview</h4>
-                </div>
-                <div class="modal-body">
-                    <img id="modalImage" src="" alt="Image Preview">
-                </div>
-                <div class="modal-footer">
-                    <a id="downloadLink" href="" download class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
+    <div class="hero-image">
+        <img src="/static/images/welcome.png" alt="welcome Image" style="width:100%;">
+        <div class="hero-text">
+            <h1>欢迎大家</h1>
         </div>
     </div>
+    <div class="info-text">
+        <p>提亲地点：衍宏府5栋1301</p>
+        <p>上门时间：2024年7月27日 上午10点30分</p>
+        <p>聚餐地点：白龙南路64号 海鲜第一家.富贵楼</p>
+        <p>用餐时间：2024年7月27日 上午12点</p>
+    </div>
+
 
     <!-- 引入本地 jQuery 和 Bootstrap 3 JavaScript -->
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script>
-        let page = 1;
-        const pageSize = 9;
-        let currentLayout = 3; // Default layout: 3 columns
-
-        function loadImages() {
-            $.getJSON('/files', { page: page }, function(data) {
-                const container = $('#image-container');
-                data.files.forEach(function(file) {
-                    const img = $('<img>').attr('src', '/uploads/' + file.name).addClass('thumbnail');
-                    const imgContainer = $('<div>').addClass('image-item').append(img);
-                    container.append(imgContainer);
-
-                    img.on('click', function() {
-                        $('#modalImage').attr('src', '/uploads/' + file.name);
-                        $('#downloadLink').attr('href', '/uploads/' + file.name);
-                        $('#imageModal').modal('show');
-                    });
-                });
-                if (data.files.length < pageSize) {
-                    $(window).off('scroll', onScroll);
-                }
-            });
-        }
-
-        function onScroll() {
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                page++;
-                loadImages();
-            }
-        }
-
-        function toggleLayout() {
-            const container = $('#image-container');
-            if (currentLayout === 3) {
-                currentLayout = 6;
-                container.find('.image-item').css('flex', '1 1 calc(16.666% - 10px)');
-            } else if (currentLayout === 6) {
-                currentLayout = 1;
-                container.find('.image-item').css('flex', '1 1 calc(100% - 10px)');
-            } else {
-                currentLayout = 3;
-                container.find('.image-item').css('flex', '1 1 calc(33.333% - 10px)');
-            }
-        }
-
-        $(document).ready(function() {
-            loadImages();
-            $(window).on('scroll', onScroll);
-            $('#toggleButton').on('click', toggleLayout);
-        });
-    </script>
 </body>
 </html>

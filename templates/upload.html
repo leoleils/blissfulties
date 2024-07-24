@@ -39,9 +39,13 @@
 <body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="/">Bubu星球</a>
-            </div>
+            <!-- <div class="navbar-header">
+                <a class="navbar-brand" href="/">吾家有喜</a>
+            </div> -->
+            <ul class="nav nav-tabs">
+                <li><a href="/">吾家有喜</a></li>
+                <li class="active"><a href="/gallery">照片墙</a></li>
+            </ul>
         </div>
     </nav>
 
@@ -49,7 +53,6 @@
         <h2>图片上传</h2>
         <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="files">点这挑选图片:</label>
                 <input type="file" id="files" name="files" multiple class="form-control">
             </div>
             <div class="preview" id="preview"></div>
@@ -120,10 +123,11 @@
                     },
                     success: function() {
                         //alert('Files uploaded successfully');
-                        window.location.href = '/';
+                        window.location.href = '/gallery';
                     },
                     error: function() {
                         alert('上传文件出了一些问题');
+                        window.location.href = '/gallery';
                     }
                 });
             });

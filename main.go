@@ -26,6 +26,10 @@ func main() {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
+	r.GET("/gallery", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "gallery.html", nil)
+	})
+
 	r.GET("/upload", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
@@ -69,12 +73,10 @@ func main() {
 			})
 		}
 
-		// 按修改时间排序
 		sort.Slice(fileInfos, func(i, j int) bool {
 			return fileInfos[i].ModTime.After(fileInfos[j].ModTime)
 		})
 
-		// 分页
 		page, _ := c.GetQuery("page")
 		pageSize := 9
 		start := 0

@@ -1,0 +1,9 @@
+
+.image-item {
+    margin: 5px;
+    flex: 1 1 calc(33.333% - 10px);
+}
+.thumbnail {
+    width: 100%;
+    height: auto;
+}
