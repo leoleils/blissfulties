@@ -9,11 +9,18 @@
     <title>Image Gallery</title>
     <!-- 引入本地 Bootstrap 3 CSS -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <!-- 引入 Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        body {
+            background-color: #800020; /* Burgundy color */
+            color: white; /* Optional: Set text color to white for better contrast */
+        }
         .thumbnail {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 10px;
+            width: 100%;
+            height: auto;
+            margin: 5px;
+            cursor: pointer;
         }
         .navbar {
             margin-bottom: 20px;
@@ -26,9 +33,71 @@
         }
         .floating-button {
             position: fixed;
-            top: 20px;
+            top: 60px;
             right: 20px;
             z-index: 1000;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .floating-button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .floating-button:active {
+            transform: scale(0.9);
+        }
+        .toggle-button {
+            position: fixed;
+            top: 105px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toggle-button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .toggle-button:active {
+            transform: scale(0.9);
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .image-item {
+            flex: 1 1 calc(33.333% - 10px); /* Default: 3 columns with 10px gap */
+            box-sizing: border-box;
+            margin: 5px;
+        }
+        @media (max-width: 768px) {
+            .image-item {
+                flex: 1 1 calc(50% - 10px); /* 2 columns with 10px gap on smaller screens */
+            }
+        }
+        @media (max-width: 480px) {
+            .image-item {
+                flex: 1 1 calc(100% - 10px); /* 1 column with 10px gap on very small screens */
+            }
         }
     </style>
 </head>
@@ -36,16 +105,24 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/">Bubu星球</a>
+                <a class="navbar-brand" href="/">Image Gallery</a>
             </div>
         </div>
     </nav>
 
     <div class="container">
-        <div class="row" id="image-container"></div>
+        <div class="image-container" id="image-container"></div>
     </div>
+
     <!-- Floating Upload Button -->
-    <a href="/upload" class="btn btn-primary floating-button">图片上传</a>
+    <a href="/upload" class="floating-button">
+        <i class="fas fa-camera"></i>
+    </a>
+
+    <!-- Toggle Button -->
+    <button class="toggle-button" id="toggleButton">
+        <i class="fas fa-th"></i>
+    </button>
 
     <!-- Modal for image preview -->
     <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
@@ -53,14 +130,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="imageModalLabel">图片预览</h4>
+                    <h4 class="modal-title" id="imageModalLabel">Image Preview</h4>
                 </div>
                 <div class="modal-body">
                     <img id="modalImage" src="" alt="Image Preview">
                 </div>
                 <div class="modal-footer">
-                    <a id="downloadLink" href="" download class="btn btn-primary">下载</a>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <a id="downloadLink" href="" download class="btn btn-primary">Download</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -72,13 +149,14 @@
     <script>
         let page = 1;
         const pageSize = 9;
+        let currentLayout = 3; // Default layout: 3 columns
 
         function loadImages() {
             $.getJSON('/files', { page: page }, function(data) {
                 const container = $('#image-container');
                 data.files.forEach(function(file) {
                     const img = $('<img>').attr('src', '/uploads/' + file.name).addClass('thumbnail');
-                    const imgContainer = $('<div>').addClass('col-xs-6 col-md-3').append(img);
+                    const imgContainer = $('<div>').addClass('image-item').append(img);
                     container.append(imgContainer);
 
                     img.on('click', function() {
@@ -100,9 +178,24 @@
             }
         }
 
+        function toggleLayout() {
+            const container = $('#image-container');
+            if (currentLayout === 3) {
+                currentLayout = 6;
+                container.find('.image-item').css('flex', '1 1 calc(16.666% - 10px)');
+            } else if (currentLayout === 6) {
+                currentLayout = 1;
+                container.find('.image-item').css('flex', '1 1 calc(100% - 10px)');
+            } else {
+                currentLayout = 3;
+                container.find('.image-item').css('flex', '1 1 calc(33.333% - 10px)');
+            }
+        }
+
         $(document).ready(function() {
             loadImages();
             $(window).on('scroll', onScroll);
+            $('#toggleButton').on('click', toggleLayout);
         });
     </script>
 </body>
