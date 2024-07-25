@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="/static/css/custom.css">
     <style>
         body {
-            background-color: #800020; /* Burgundy color */
-            color: white; /* Optional: Set text color to white for better contrast */
+            background-color: #800020;
+            color: white;
         }
         .thumbnail {
             width: 100%;
@@ -84,18 +84,18 @@
             justify-content: space-between;
         }
         .image-item {
-            flex: 1 1 calc(33.333% - 10px); /* Default: 3 columns with 10px gap */
+            flex: 1 1 calc(33.333% - 10px);
             box-sizing: border-box;
             margin: 5px;
         }
         @media (max-width: 768px) {
             .image-item {
-                flex: 1 1 calc(50% - 10px); /* 2 columns with 10px gap on smaller screens */
+                flex: 1 1 calc(50% - 10px);
             }
         }
         @media (max-width: 480px) {
             .image-item {
-                flex: 1 1 calc(100% - 10px); /* 1 column with 10px gap on very small screens */
+                flex: 1 1 calc(100% - 10px);
             }
         }
     </style>
@@ -103,31 +103,17 @@
 <body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
-            <!-- <div class="navbar-header">
-                <a class="navbar-brand" href="/">吾家有喜</a>
-            </div> -->
             <ul class="nav nav-tabs">
                 <li><a href="/">吾家有喜</a></li>
                 <li class="active"><a href="/gallery">照片墙</a></li>
             </ul>
         </div>
     </nav>
-
     <div class="container">
         <div class="image-container" id="image-container"></div>
     </div>
-
-    <!-- Floating Upload Button -->
-    <a href="/upload" class="floating-button">
-        <i class="fas fa-camera"></i>
-    </a>
-
-    <!-- Toggle Button -->
-    <button class="toggle-button" id="toggleButton">
-        <i class="fas fa-th"></i>
-    </button>
-
-    <!-- Modal for image preview -->
+    <a href="/upload" class="floating-button"><i class="fas fa-camera"></i></a>
+    <button class="toggle-button" id="toggleButton"><i class="fas fa-th"></i></button>
     <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -139,14 +125,12 @@
                     <img id="modalImage" src="" alt="Image Preview">
                 </div>
                 <div class="modal-footer">
-                    <a id="downloadLink" href="" download class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <a id="downloadLink" href="" download class="btn btn-primary">下载</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- 寮曞叆鏈湴 jQuery 鍜� Bootstrap 3 JavaScript -->
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script>
@@ -158,13 +142,12 @@
             $.getJSON('/files', { page: page }, function(data) {
                 const container = $('#image-container');
                 data.files.forEach(function(file) {
-                    const img = $('<img>').attr('src', '/uploads/' + file.name).addClass('thumbnail');
+                    const img = $('<img>').attr('src', file.thumbnail).addClass('thumbnail');
                     const imgContainer = $('<div>').addClass('image-item').append(img);
                     container.append(imgContainer);
-
                     img.on('click', function() {
                         $('#modalImage').attr('src', '/uploads/' + file.name);
-                        $('#downloadLink').attr('href', '/uploads/' + file.name);
+                        $('#downloadLink').attr('href', '/download/' + file.name);
                         $('#imageModal').modal('show');
                     });
                 });
